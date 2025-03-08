@@ -33,6 +33,8 @@ def arrival(env, proc, ready_queue):
 # Scheduler Functions
 # -------------------------------
 
+#Demonstration
+
 # FCFS Scheduler
 def scheduler_fcfs(env, ready_queue, completed, total):
     while len(completed) < total:
