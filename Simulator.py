@@ -214,3 +214,7 @@ print_results("Shortest Job First (SJF)", results_sjf)
 print_results("Shortest Remaining Time First (SRTF)", results_srtf)
 print_results("Priority Scheduling", results_prio)
 print_results("Round Robin (Time Quantum = 3)", results_rr)
+
+
+# Alfonso
+print("Alfonso")
