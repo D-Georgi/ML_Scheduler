@@ -71,7 +71,8 @@ def scheduler_srtf(env, ready_queue, completed, total):
         # Select process with the smallest remaining time.
         proc = min(candidates, key=lambda p: p.remaining)
         if proc != current_proc:
-            # Preempt if necessary.
+            if current_proc is not None:
+                ready_queue.append(current_proc)
             current_proc = proc
             if current_proc in ready_queue:
                 ready_queue.remove(current_proc)
@@ -90,8 +91,6 @@ def scheduler_srtf(env, ready_queue, completed, total):
             print(f"Time {env.now}: Process {current_proc.pid} finishes (SRTF)")
             completed.append(current_proc)
             current_proc = None
-
-    print("Finished")
 
 # Priority Scheduler (Non-preemptive; lower number = higher priority)
 def scheduler_priority(env, ready_queue, completed, total):
