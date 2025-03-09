@@ -20,7 +20,7 @@ class Process:
         return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"
 
 
-def generate_processes(n, seed=None) -> list:
+def generate_processes(n, max_arrival=4, max_burst=10, max_priority=3, seed=None) -> list:
     """Function for Generating Processes, returns a list of processes
     \nParams: n (number of processes), seed (random.seed)"""
     if seed is not None:
@@ -28,8 +28,14 @@ def generate_processes(n, seed=None) -> list:
     processes = []
     arrival_time = 0
     for i in range(n):
-        arrival_time += random.randint(1, 4)
-        burst_time = random.randint(3, 10)
-        priority = random.randint(1, 3)
+        #arrival time of a process is strictly increasing and chosen to be between 1 and max units of time
+        arrival_time += random.randint(1, max_arrival)
+
+        #burst time chosen to be between 1 and max (inclusive) units of time
+        burst_time = random.randint(1, max_burst)
+
+        #priority is designated from high to low (0 -> max)
+        priority = random.randint(1, max_priority)
+
         processes.append(Process(f"P{i + 1}", arrival=arrival_time, burst=burst_time, priority=priority))
     return processes

@@ -1,6 +1,5 @@
 import simpy
 import copy
-import process_generation
 from process_generation import generate_processes
 
 
@@ -16,9 +15,6 @@ def arrival(env, proc, ready_queue):
 # -------------------------------
 # Scheduler Functions
 # -------------------------------
-#Demonstration
-#Demonstration
-#Demonstration
 
 # FCFS Scheduler
 def scheduler_fcfs(env, ready_queue, completed, total):

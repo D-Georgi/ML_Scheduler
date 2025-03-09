@@ -1,6 +1,5 @@
 import simpy
 import random
-import process_generation
 from process_generation import generate_processes
 
 # -------------------------------
