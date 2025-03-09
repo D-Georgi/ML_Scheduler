@@ -91,6 +91,8 @@ def scheduler_srtf(env, ready_queue, completed, total):
             completed.append(current_proc)
             current_proc = None
 
+    print("Finished")
+
 # Priority Scheduler (Non-preemptive; lower number = higher priority)
 def scheduler_priority(env, ready_queue, completed, total):
     while len(completed) < total:
@@ -178,7 +180,7 @@ def print_results(algorithm_name, processes):
 # -------------------------------
 # Sample Process List and Simulations
 # -------------------------------
-sample_processes = generate_processes(10, seed=5500)
+sample_processes = generate_processes(100, seed=42)
 
 # Run simulations for each scheduling algorithm.
 results_fcfs   = simulate_fcfs(sample_processes)

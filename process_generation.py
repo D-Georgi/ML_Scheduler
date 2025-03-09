@@ -20,7 +20,7 @@ class Process:
         return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"
 
 
-def generate_processes(n, seed=None):
+def generate_processes(n, seed=None) -> list:
     """Function for Generating Processes, returns a list of processes
     \nParams: n (number of processes), seed (random.seed)"""
     if seed is not None:
@@ -28,7 +28,7 @@ def generate_processes(n, seed=None):
     processes = []
     arrival_time = 0
     for i in range(n):
-        arrival_time += random.randint(0, 4)
+        arrival_time += random.randint(1, 4)
         burst_time = random.randint(3, 10)
         priority = random.randint(1, 3)
         processes.append(Process(f"P{i + 1}", arrival=arrival_time, burst=burst_time, priority=priority))
