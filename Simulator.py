@@ -1,24 +1,7 @@
 import simpy
 import copy
+from process_generation import generate_processes
 
-# -------------------------------
-# Process Class Definition
-# -------------------------------
-class Process:
-    def __init__(self, pid, arrival, burst, priority=0):
-        self.pid = pid            # Process ID
-        self.arrival = arrival    # Arrival time
-        self.burst = burst        # Total burst time
-        self.remaining = burst    # Remaining time (for preemptive algorithms)
-        self.priority = priority  # Priority (lower number = higher priority)
-        self.start = None         # Time when process first gets CPU
-        self.completion = None    # Time when process finishes
-        self.response = None      # Response time (start - arrival)
-        self.waiting = 0          # Total waiting time
-        self.turnaround = 0       # Turnaround time (completion - arrival)
-
-    def __repr__(self):
-        return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"
 
 # -------------------------------
 # Arrival Process
@@ -32,9 +15,6 @@ def arrival(env, proc, ready_queue):
 # -------------------------------
 # Scheduler Functions
 # -------------------------------
-#Demonstration
-#Demonstration
-#Demonstration
 
 # FCFS Scheduler
 def scheduler_fcfs(env, ready_queue, completed, total):
@@ -87,7 +67,8 @@ def scheduler_srtf(env, ready_queue, completed, total):
         # Select process with the smallest remaining time.
         proc = min(candidates, key=lambda p: p.remaining)
         if proc != current_proc:
-            # Preempt if necessary.
+            if current_proc is not None:
+                ready_queue.append(current_proc)
             current_proc = proc
             if current_proc in ready_queue:
                 ready_queue.remove(current_proc)
@@ -194,12 +175,7 @@ def print_results(algorithm_name, processes):
 # -------------------------------
 # Sample Process List and Simulations
 # -------------------------------
-sample_processes = [
-    Process("P1", arrival=0, burst=8, priority=2),
-    Process("P2", arrival=1, burst=4, priority=1),
-    Process("P3", arrival=2, burst=9, priority=3),
-    Process("P4", arrival=3, burst=5, priority=2)
-]
+sample_processes = generate_processes(100, seed=42)
 
 # Run simulations for each scheduling algorithm.
 results_fcfs   = simulate_fcfs(sample_processes)
