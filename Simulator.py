@@ -3,6 +3,7 @@
 # Import libraries
 import simpy
 import copy
+from process_generation import generate_processes
 
 # Imports from project
 from first_come_first_serve import FirstComeFirstServeScheduler
@@ -10,25 +11,6 @@ from round_robin_scheduler import RoundRobinScheduler
 from shortest_remaining_time_first import ShortestRemainingTimeFirstScheduler
 from shortest_job_first import ShortestJobFirstScheduler
 from priority_scheduler import PriorityScheduler
-
-# -------------------------------
-# Process Class Definition
-# -------------------------------
-class Process:
-    def __init__(self, pid, arrival, burst, priority=0):
-        self.pid = pid            # Process ID
-        self.arrival = arrival    # Arrival time
-        self.burst = burst        # Total burst time
-        self.remaining = burst    # Remaining time (for preemptive algorithms)
-        self.priority = priority  # Priority (lower number = higher priority)
-        self.start = None         # Time when process first gets CPU
-        self.completion = None    # Time when process finishes
-        self.response = None      # Response time (start - arrival)
-        self.waiting = 0          # Total waiting time
-        self.turnaround = 0       # Turnaround time (completion - arrival)
-
-    def __repr__(self):
-        return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"
 
 
 # -------------------------------
@@ -85,23 +67,22 @@ def print_results(algorithm_name, processes):
 # -------------------------------
 # Sample Process List and Simulations
 # -------------------------------
-sample_processes = [
-    Process("P1", arrival=0, burst=8, priority=2),
-    Process("P2", arrival=1, burst=4, priority=1),
-    Process("P3", arrival=2, burst=9, priority=3),
-    Process("P4", arrival=3, burst=5, priority=2)
-]
+sample_processes = generate_processes(100, seed=42)
 
 # Run simulations for each scheduling algorithm.
 results_fcfs   = simulate_fcfs(sample_processes)
 results_sjf    = simulate_sjf(sample_processes)
-results_srtf   = simulate_srtf(sample_processes)
+# TODO: Uncomment following code after resolving issue that was identified in PR-3
+# https://github.com/D-Georgi/ML_Scheduler/pull/3
+# results_srtf   = simulate_srtf(sample_processes)
 results_prio   = simulate_priority(sample_processes)
 results_rr     = simulate_rr(sample_processes, time_quantum=3)
 
 # Print the results.
 print_results("First Come First Serve (FCFS)", results_fcfs)
 print_results("Shortest Job First (SJF)", results_sjf)
-print_results("Shortest Remaining Time First (SRTF)", results_srtf)
+# TODO: Uncomment after resolving issue that was identified in PR-3
+# https://github.com/D-Georgi/ML_Scheduler/pull/3
+# print_results("Shortest Remaining Time First (SRTF)", results_srtf)
 print_results("Priority Scheduling", results_prio)
 print_results("Round Robin (Time Quantum = 3)", results_rr)
