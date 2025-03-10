@@ -72,8 +72,6 @@ sample_processes = generate_processes(100, seed=42)
 # Run simulations for each scheduling algorithm.
 results_fcfs   = simulate_fcfs(sample_processes)
 results_sjf    = simulate_sjf(sample_processes)
-# TODO: Uncomment following code after resolving issue that was identified in PR-3
-# https://github.com/D-Georgi/ML_Scheduler/pull/3
 results_srtf   = simulate_srtf(sample_processes)
 results_prio   = simulate_priority(sample_processes)
 results_rr     = simulate_rr(sample_processes, time_quantum=3)
@@ -81,8 +79,6 @@ results_rr     = simulate_rr(sample_processes, time_quantum=3)
 # Print the results.
 print_results("First Come First Serve (FCFS)", results_fcfs)
 print_results("Shortest Job First (SJF)", results_sjf)
-# TODO: Uncomment after resolving issue that was identified in PR-3
-# https://github.com/D-Georgi/ML_Scheduler/pull/3
 print_results("Shortest Remaining Time First (SRTF)", results_srtf)
 print_results("Priority Scheduling", results_prio)
 print_results("Round Robin (Time Quantum = 3)", results_rr)
