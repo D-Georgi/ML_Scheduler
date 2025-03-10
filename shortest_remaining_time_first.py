@@ -42,16 +42,18 @@ class ShortestRemainingTimeFirstScheduler:
             if self.current_proc:
                 candidates.append(self.current_proc)
 
-            # Select process with the smallest remaining time.
-            self.current_proc = min(candidates, key=lambda p: p.remaining)
+            proc = min(candidates, key=lambda p: p.remaining)
+            if proc != self.current_proc:
+                if self.current_proc is not None:
+                    self.ready_queue.append(self.current_proc)
+                self.current_proc = proc
+                if self.current_proc in self.ready_queue:
+                    self.ready_queue.remove(self.current_proc)
 
-            if self.current_proc in self.ready_queue:
-                self.ready_queue.remove(self.current_proc)
-
-            if self.current_proc.start is None:
-                self.current_proc.start = self.env.now
-                self.current_proc.response = self.current_proc.start - self.current_proc.arrival
-                print(f"Time {self.env.now}: Process {self.current_proc.pid} is now running (Shortest Run Time First)..")
+                if self.current_proc.start is None:
+                    self.current_proc.start = self.env.now
+                    self.current_proc.response = self.current_proc.start - self.current_proc.arrival
+                    print(f"Time {self.env.now}: Process {self.current_proc.pid} is now running (Shortest Run Time First)..")
 
             # Run for one time unit.
             yield self.env.timeout(1)
