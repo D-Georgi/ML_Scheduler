@@ -5,10 +5,11 @@ import simpy
 import copy
 
 # Imports from project
-from first_come_first_serve import scheduler_fcfs
-from round_robin_scheduler import scheduler_rr
+from first_come_first_serve import FirstComeFirstServeScheduler
+from round_robin_scheduler import RoundRobinScheduler
 from shortest_remaining_time_first import ShortestRemainingTimeFirstScheduler
-from shortest_job_first import scheduler_sjf
+from shortest_job_first import ShortestJobFirstScheduler
+from priority_scheduler import PriorityScheduler
 
 # -------------------------------
 # Process Class Definition
@@ -29,45 +30,21 @@ class Process:
     def __repr__(self):
         return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"
 
-# -------------------------------
-# Arrival Process
-# -------------------------------
-def arrival(env, proc, ready_queue):
-    """Wait until process arrival and then add it to the ready queue."""
-    yield env.timeout(proc.arrival - env.now)
-    ready_queue.append(proc)
-    print(f"Time {env.now}: Process {proc.pid} arrives.")
-
-# -------------------------------
-# Scheduler Functions
-# -------------------------------
-
-
-
-# Priority Scheduler (Non-preemptive; lower number = higher priority)
-def scheduler_priority(env, ready_queue, completed, total):
-    while len(completed) < total:
-        if not ready_queue:
-            yield env.timeout(1)
-            continue
-        # Select process with the highest priority.
-        proc = min(ready_queue, key=lambda p: p.priority)
-        ready_queue.remove(proc)
-        if proc.start is None:
-            proc.start = env.now
-            proc.response = proc.start - proc.arrival
-        print(f"Time {env.now}: Process {proc.pid} starts execution for {proc.burst} time units (Priority)")
-        yield env.timeout(proc.burst)
-        proc.completion = env.now
-        proc.turnaround = proc.completion - proc.arrival
-        proc.waiting = proc.start - proc.arrival
-        completed.append(proc)
-
 
 # -------------------------------
 # Simulation Functions
 # -------------------------------
 def run_simulation(process_list, scheduler_class, **scheduler_kwargs):
+
+    # -------------------------------
+    # Arrival Process
+    # -------------------------------
+    def arrival(env, proc, ready_queue):
+        """Wait until process arrival and then add it to the ready queue."""
+        yield env.timeout(proc.arrival - env.now)
+        ready_queue.append(proc)
+        print(f"Time {env.now}: Process {proc.pid} arrives.")
+
     total = len(process_list)
     env = simpy.Environment()
     ready_queue = []
@@ -82,19 +59,19 @@ def run_simulation(process_list, scheduler_class, **scheduler_kwargs):
 
 # Wrapper functions for each scheduling algorithm.
 def simulate_fcfs(process_list):
-    return run_simulation(copy.deepcopy(process_list), scheduler_fcfs)
+    return run_simulation(copy.deepcopy(process_list), FirstComeFirstServeScheduler)
 
 def simulate_sjf(process_list):
-    return run_simulation(copy.deepcopy(process_list), scheduler_sjf)
+    return run_simulation(copy.deepcopy(process_list), ShortestJobFirstScheduler)
 
 def simulate_srtf(process_list):
     return run_simulation(copy.deepcopy(process_list), ShortestRemainingTimeFirstScheduler)
 
 def simulate_priority(process_list):
-    return run_simulation(copy.deepcopy(process_list), scheduler_priority)
+    return run_simulation(copy.deepcopy(process_list), PriorityScheduler)
 
 def simulate_rr(process_list, time_quantum):
-    return run_simulation(copy.deepcopy(process_list), scheduler_rr, time_quantum=time_quantum)
+    return run_simulation(copy.deepcopy(process_list), RoundRobinScheduler, time_quantum=time_quantum)
 
 # -------------------------------
 # Utility to Print Results
@@ -116,15 +93,15 @@ sample_processes = [
 ]
 
 # Run simulations for each scheduling algorithm.
-#results_fcfs   = simulate_fcfs(sample_processes)
-#results_sjf    = simulate_sjf(sample_processes)
+results_fcfs   = simulate_fcfs(sample_processes)
+results_sjf    = simulate_sjf(sample_processes)
 results_srtf   = simulate_srtf(sample_processes)
-#results_prio   = simulate_priority(sample_processes)
-#results_rr     = simulate_rr(sample_processes, time_quantum=3)
+results_prio   = simulate_priority(sample_processes)
+results_rr     = simulate_rr(sample_processes, time_quantum=3)
 
 # Print the results.
-#print_results("First Come First Serve (FCFS)", results_fcfs)
-#print_results("Shortest Job First (SJF)", results_sjf)
+print_results("First Come First Serve (FCFS)", results_fcfs)
+print_results("Shortest Job First (SJF)", results_sjf)
 print_results("Shortest Remaining Time First (SRTF)", results_srtf)
-#print_results("Priority Scheduling", results_prio)
-#print_results("Round Robin (Time Quantum = 3)", results_rr)
+print_results("Priority Scheduling", results_prio)
+print_results("Round Robin (Time Quantum = 3)", results_rr)
