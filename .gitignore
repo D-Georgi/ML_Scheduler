@@ -1,0 +1,50 @@
+
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+*.venv/
+
+# Editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Dependency files
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Compiled C extensions
+*.so
+
+# Testing and coverage reports
+.tox/
+.nox/
+.coverage
+*.cover
+coverage.xml
+nosetests.xml
+pytest_cache/
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.spec
