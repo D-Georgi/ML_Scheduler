@@ -3,7 +3,13 @@
 # Import libraries
 import simpy
 import copy
+import matplotlib.pyplot as plt
+import numpy as np
+import sys
 from process_generation import generate_processes
+
+# Force output to be unbuffered
+sys.stdout.reconfigure(line_buffering=True)
 
 # Imports from project
 from first_come_first_serve import FirstComeFirstServeScheduler
@@ -64,21 +70,113 @@ def print_results(algorithm_name, processes):
     for p in sorted(processes, key=lambda p: p.pid):
         print(f"{p.pid}\t{p.arrival}\t{p.burst}\t{p.start}\t{p.completion}\t\t{p.waiting}\t{p.turnaround}\t\t{p.response}")
 
+def calculate_metrics(processes):
+    """Calculate average turnaround time and average wait time for a list of processes."""
+    total_turnaround = sum(p.turnaround for p in processes)
+    total_wait = sum(p.waiting for p in processes)
+    avg_turnaround = total_turnaround / len(processes)
+    avg_wait = total_wait / len(processes)
+    return avg_turnaround, avg_wait
+
+def visualize_metrics(results_dict):
+    """Create bar charts for average turnaround time and average wait time."""
+    algorithms = list(results_dict.keys())
+    avg_turnaround_times = [results_dict[alg]['turnaround'] for alg in algorithms]
+    avg_wait_times = [results_dict[alg]['wait'] for alg in algorithms]
+
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+
+    # Plot average turnaround time
+    ax1.bar(algorithms, avg_turnaround_times, color='skyblue')
+    ax1.set_title('Average Turnaround Time')
+    ax1.set_ylabel('Time Units')
+    ax1.tick_params(axis='x', rotation=45)
+
+    # Plot average wait time
+    ax2.bar(algorithms, avg_wait_times, color='lightgreen')
+    ax2.set_title('Average Wait Time')
+    ax2.set_ylabel('Time Units')
+    ax2.tick_params(axis='x', rotation=45)
+
+    plt.tight_layout()
+    plt.savefig('scheduling_metrics.png')
+    plt.show()
+
 # -------------------------------
 # Sample Process List and Simulations
 # -------------------------------
-sample_processes = generate_processes(100, seed=42)
+print("\n" + "="*50)
+print("Starting CPU Scheduler Simulation")
+print("="*50 + "\n")
+
+# Generate a smaller number of processes for clearer demonstration
+sample_processes = generate_processes(10, seed=42)
+
+print("Generated Processes:")
+print("-"*30)
+for p in sample_processes:
+    print(f"Process {p.pid}: Arrival={p.arrival}, Burst={p.burst}, Priority={p.priority}")
+
+print("\n" + "="*50)
+print("Running Simulations")
+print("="*50 + "\n")
 
 # Run simulations for each scheduling algorithm.
+print("Running FCFS...")
 results_fcfs   = simulate_fcfs(sample_processes)
+print("\nRunning SJF...")
 results_sjf    = simulate_sjf(sample_processes)
+print("\nRunning SRTF...")
 results_srtf   = simulate_srtf(sample_processes)
+print("\nRunning Priority...")
 results_prio   = simulate_priority(sample_processes)
+print("\nRunning Round Robin...")
 results_rr     = simulate_rr(sample_processes, time_quantum=3)
 
-# Print the results.
+# Calculate metrics for each algorithm
+metrics = {
+    'FCFS': calculate_metrics(results_fcfs),
+    'SJF': calculate_metrics(results_sjf),
+    'SRTF': calculate_metrics(results_srtf),
+    'Priority': calculate_metrics(results_prio),
+    'Round Robin': calculate_metrics(results_rr)
+}
+
+# Convert metrics to dictionary format for visualization
+results_dict = {
+    'FCFS': {'turnaround': metrics['FCFS'][0], 'wait': metrics['FCFS'][1]},
+    'SJF': {'turnaround': metrics['SJF'][0], 'wait': metrics['SJF'][1]},
+    'SRTF': {'turnaround': metrics['SRTF'][0], 'wait': metrics['SRTF'][1]},
+    'Priority': {'turnaround': metrics['Priority'][0], 'wait': metrics['Priority'][1]},
+    'Round Robin': {'turnaround': metrics['Round Robin'][0], 'wait': metrics['Round Robin'][1]}
+}
+
+print("\n" + "="*50)
+print("Detailed Results")
+print("="*50 + "\n")
+
+# Print detailed results
 print_results("First Come First Serve (FCFS)", results_fcfs)
 print_results("Shortest Job First (SJF)", results_sjf)
 print_results("Shortest Remaining Time First (SRTF)", results_srtf)
 print_results("Priority Scheduling", results_prio)
 print_results("Round Robin (Time Quantum = 3)", results_rr)
+
+# Print average metrics
+print("\n" + "="*50)
+print("Average Metrics")
+print("="*50 + "\n")
+
+print("Algorithm\t\tAvg Turnaround\tAvg Wait")
+print("-" * 50)
+for alg, (turnaround, wait) in metrics.items():
+    print(f"{alg:<15}\t{turnaround:>8.2f}\t\t{wait:>8.2f}")
+
+print("\n" + "="*50)
+print("Generating Visualization")
+print("="*50 + "\n")
+
+# Visualize the metrics
+visualize_metrics(results_dict)
+print("\nVisualization has been saved as 'scheduling_metrics.png'")
