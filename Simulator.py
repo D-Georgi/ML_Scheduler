@@ -6,24 +6,25 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-from process_generation import generate_processes
 
-# Force output to be unbuffered
-sys.stdout.reconfigure(line_buffering=True)
+# Imports for ML scheduling
+from ML import MLSchedulerAgent, train_agent, run_simulation_ml, scheduler_ml
 
 # Imports from project
+from process_generation import generate_processes
 from first_come_first_serve import FirstComeFirstServeScheduler
 from round_robin_scheduler import RoundRobinScheduler
 from shortest_remaining_time_first import ShortestRemainingTimeFirstScheduler
 from shortest_job_first import ShortestJobFirstScheduler
 from priority_scheduler import PriorityScheduler
 
+# Force output to be unbuffered
+sys.stdout.reconfigure(line_buffering=True)
 
 # -------------------------------
 # Simulation Functions
 # -------------------------------
 def run_simulation(process_list, scheduler_class, **scheduler_kwargs):
-
     # -------------------------------
     # Arrival Process
     # -------------------------------
@@ -61,6 +62,10 @@ def simulate_priority(process_list):
 def simulate_rr(process_list, time_quantum):
     return run_simulation(copy.deepcopy(process_list), RoundRobinScheduler, time_quantum=time_quantum)
 
+# Wrapper for ML-based scheduler
+def simulate_ml(process_list, agent):
+    return run_simulation_ml(copy.deepcopy(process_list), scheduler_ml, agent)
+
 # -------------------------------
 # Utility to Print Results
 # -------------------------------
@@ -78,6 +83,9 @@ def calculate_metrics(processes):
     avg_wait = total_wait / len(processes)
     return avg_turnaround, avg_wait
 
+# -------------------------------
+# Visualization
+# -------------------------------
 def visualize_metrics(results_dict):
     """Create bar charts for average turnaround time and average wait time."""
     algorithms = list(results_dict.keys())
@@ -88,13 +96,13 @@ def visualize_metrics(results_dict):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
     # Plot average turnaround time
-    ax1.bar(algorithms, avg_turnaround_times, color='skyblue')
+    ax1.bar(algorithms, avg_turnaround_times)
     ax1.set_title('Average Turnaround Time')
     ax1.set_ylabel('Time Units')
     ax1.tick_params(axis='x', rotation=45)
 
     # Plot average wait time
-    ax2.bar(algorithms, avg_wait_times, color='lightgreen')
+    ax2.bar(algorithms, avg_wait_times)
     ax2.set_title('Average Wait Time')
     ax2.set_ylabel('Time Units')
     ax2.tick_params(axis='x', rotation=45)
@@ -124,15 +132,24 @@ print("="*50 + "\n")
 
 # Run simulations for each scheduling algorithm.
 print("Running FCFS...")
-results_fcfs   = simulate_fcfs(sample_processes)
+results_fcfs = simulate_fcfs(sample_processes)
 print("\nRunning SJF...")
-results_sjf    = simulate_sjf(sample_processes)
+results_sjf = simulate_sjf(sample_processes)
 print("\nRunning SRTF...")
-results_srtf   = simulate_srtf(sample_processes)
+results_srtf = simulate_srtf(sample_processes)
 print("\nRunning Priority...")
-results_prio   = simulate_priority(sample_processes)
+results_prio = simulate_priority(sample_processes)
 print("\nRunning Round Robin...")
-results_rr     = simulate_rr(sample_processes, time_quantum=3)
+results_rr = simulate_rr(sample_processes, time_quantum=3)
+
+# Initialize and train ML Scheduler Agent
+print("\nRunning ML-based Scheduler Training...")
+agent = MLSchedulerAgent(alpha=0.1, gamma=0.9, epsilon=0.2)
+train_agent(agent, episodes=200, num_procs=len(sample_processes))
+
+# Run ML-based scheduler
+print("\nRunning ML-Based Scheduler...")
+results_ml = simulate_ml(sample_processes, agent)
 
 # Calculate metrics for each algorithm
 metrics = {
@@ -140,17 +157,12 @@ metrics = {
     'SJF': calculate_metrics(results_sjf),
     'SRTF': calculate_metrics(results_srtf),
     'Priority': calculate_metrics(results_prio),
-    'Round Robin': calculate_metrics(results_rr)
+    'Round Robin': calculate_metrics(results_rr),
+    'ML-Based': calculate_metrics(results_ml)
 }
 
 # Convert metrics to dictionary format for visualization
-results_dict = {
-    'FCFS': {'turnaround': metrics['FCFS'][0], 'wait': metrics['FCFS'][1]},
-    'SJF': {'turnaround': metrics['SJF'][0], 'wait': metrics['SJF'][1]},
-    'SRTF': {'turnaround': metrics['SRTF'][0], 'wait': metrics['SRTF'][1]},
-    'Priority': {'turnaround': metrics['Priority'][0], 'wait': metrics['Priority'][1]},
-    'Round Robin': {'turnaround': metrics['Round Robin'][0], 'wait': metrics['Round Robin'][1]}
-}
+results_dict = {alg: {'turnaround': val[0], 'wait': val[1]} for alg, val in metrics.items()}
 
 print("\n" + "="*50)
 print("Detailed Results")
@@ -162,8 +174,8 @@ print_results("Shortest Job First (SJF)", results_sjf)
 print_results("Shortest Remaining Time First (SRTF)", results_srtf)
 print_results("Priority Scheduling", results_prio)
 print_results("Round Robin (Time Quantum = 3)", results_rr)
+print_results("ML-Based Scheduler", results_ml)
 
-# Print average metrics
 print("\n" + "="*50)
 print("Average Metrics")
 print("="*50 + "\n")

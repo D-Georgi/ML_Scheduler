@@ -6,39 +6,45 @@ from process_generation import generate_processes
 # ML Scheduler Agent with Q-Learning
 # -------------------------------
 class MLSchedulerAgent:
-    def __init__(self, alpha=0.1, gamma=0.9, epsilon=0.1):
-        self.alpha = alpha            # learning rate
-        self.gamma = gamma            # discount factor
-        self.epsilon = epsilon        # exploration rate
-        self.Q = {}                   # Q-table: {(state, action): value}
+    def __init__(self, alpha=0.1, gamma=0.99, epsilon=0.2,
+                 epsilon_decay=0.995, min_epsilon=0.01):
+        self.alpha = alpha
+        self.gamma = gamma
+        self.epsilon = epsilon
+        self.epsilon_decay = epsilon_decay
+        self.min_epsilon = min_epsilon
+        self.Q = {}
 
     def get_state(self, ready_queue, current_time):
-        # State: tuple of sorted remaining burst times in ready queue
-        return tuple(sorted(p.remaining for p in ready_queue))
+        rems = tuple(sorted(p.remaining for p in ready_queue))
+        qlen = len(rems)
+        avg_rem = sum(rems)/qlen if qlen else 0
+        return (rems, qlen, int(avg_rem))
 
     def choose_action(self, state):
-        # Epsilon-greedy action selection
-        if not state:
+        if not state[0]:
             return None
         if random.random() < self.epsilon:
-            return random.randrange(len(state))
-        # Select action with highest Q-value
-        q_vals = [self.Q.get((state, a), 0.0) for a in range(len(state))]
+            return random.randrange(len(state[0]))
+        q_vals = [self.Q.get((state, a), 0.0) for a in range(len(state[0]))]
         max_q = max(q_vals)
-        best_actions = [i for i, q in enumerate(q_vals) if q == max_q]
-        return random.choice(best_actions)
+        best = [i for i,q in enumerate(q_vals) if q==max_q]
+        return random.choice(best)
 
     def learn(self, state, action, reward, next_state):
-        # Q-learning update
-        old_q = self.Q.get((state, action), 0.0)
-        # Estimate optimal future value
-        if next_state:
-            future_qs = [self.Q.get((next_state, a), 0.0) for a in range(len(next_state))]
-            best_future = max(future_qs)
+        old = self.Q.get((state, action), 0.0)
+        if next_state[0]:
+            future = max(self.Q.get((next_state, a), 0.0) for a in range(len(next_state[0])))
         else:
-            best_future = 0.0
-        # Update rule
-        self.Q[(state, action)] = old_q + self.alpha * (reward + self.gamma * best_future - old_q)
+            future = 0.0
+        self.Q[(state, action)] = old + self.alpha*(reward + self.gamma*future - old)
+
+    def train(self, episodes=500, num_procs=5):
+        for ep in range(episodes):
+            procs = generate_processes(num_procs, seed=ep)
+            _ = run_simulation_ml(procs, scheduler_ml, self)
+            self.epsilon = max(self.min_epsilon, self.epsilon * self.epsilon_decay)
+        print("Training completed.")
 
 # -------------------------------
 # Arrival Process
@@ -54,7 +60,6 @@ def arrival(env, proc, ready_queue):
 def scheduler_ml(env, ready_queue, completed, total, agent):
     while len(completed) < total:
         if not ready_queue:
-            # No ready process, advance time
             yield env.timeout(1)
             continue
 
@@ -64,30 +69,32 @@ def scheduler_ml(env, ready_queue, completed, total, agent):
             yield env.timeout(1)
             continue
 
-        proc = ready_queue.pop(action)
+        # map to the k-th shortest remaining job
+        sorted_procs = sorted(ready_queue, key=lambda p: p.remaining)
+        proc = sorted_procs[action]
+        ready_queue.remove(proc)
+
         if proc.start is None:
             proc.start = env.now
             proc.response = proc.start - proc.arrival
 
-        # Execute for one time unit (could be modified)
-        exec_time = 1
-        print(f"Time {env.now}: ML Agent schedules Process {proc.pid} for {exec_time} time unit")
-        yield env.timeout(exec_time)
-        proc.remaining -= exec_time
+        # run one time unit
+        yield env.timeout(1)
+        proc.remaining -= 1
 
-        # Reward: negative remaining time to encourage shorter jobs
-        reward = -proc.remaining
-        next_state = agent.get_state(ready_queue, env.now)
-        agent.learn(state, action, reward, next_state)
-
-        if proc.remaining > 0:
-            ready_queue.append(proc)
-        else:
+        # reward = - waiting queue length per time step
+        reward = -len(ready_queue)
+        if proc.remaining == 0:
             proc.completion = env.now
             proc.turnaround = proc.completion - proc.arrival
             proc.waiting = proc.turnaround - proc.burst
-            print(f"Time {env.now}: Process {proc.pid} finishes (ML Scheduler)")
+            reward += 10  # bonus for finishing
             completed.append(proc)
+        else:
+            ready_queue.append(proc)
+
+        next_state = agent.get_state(ready_queue, env.now)
+        agent.learn(state, action, reward, next_state)
 
 # -------------------------------
 # Simulation Wrapper
