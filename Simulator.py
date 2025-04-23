@@ -6,6 +6,7 @@ import copy
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
+from matplotlib import colors as mcolors
 
 # Imports for ML scheduling
 from ML import MLSchedulerAgent, train_agent, run_simulation_ml, scheduler_ml
@@ -119,14 +120,19 @@ def visualize_gantt(results_dict):
     n = len(results_dict)
     fig, axes = plt.subplots(n, 1, figsize=(12, 2*n), sharex=True)
     if n == 1: axes = [axes]
+    tableau_colors = list(mcolors.TABLEAU_COLORS.values())  # Get Tableau colors
 
     for ax, (alg, procs) in zip(axes, results_dict.items()):
         # map each PID to a y-row
-        pid_to_row = {p.pid: i for i,p in enumerate(sorted(procs, key=lambda x:int(x.pid[1:])))}
+        #pid_to_row = {p.pid: i for i,p in enumerate(sorted(procs, key=lambda x:int(x.pid[1:])))}
+        pid_list = sorted(set(p.pid for p in procs), key=lambda x: int(x[1:]))
+        pid_to_row = {pid: i for i, pid in enumerate(pid_list)}
+        pid_to_color = {pid: tableau_colors[i % len(tableau_colors)] for i, pid in enumerate(pid_list)}
         for p in procs:
             row = pid_to_row[p.pid]
+            color = pid_to_color[p.pid]
             for (start, length) in p.timeline:
-                ax.broken_barh([(start, length)], (row*10, 9))
+                ax.broken_barh([(start, length)], (row*10, 9), facecolor=color)
         ax.set_yticks([row*10+4 for row in pid_to_row.values()])
         ax.set_yticklabels(list(pid_to_row.keys()))
         ax.set_ylabel(alg)
