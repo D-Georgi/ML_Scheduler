@@ -15,6 +15,7 @@ class Process:
         self.response = None      # Response time (start - arrival)
         self.waiting = 0          # Total waiting time
         self.turnaround = 0       # Turnaround time (completion - arrival)
+        self.timeline: list[tuple[float, float]] = []
 
     def __repr__(self):
         return f"{self.pid}(arrival={self.arrival}, burst={self.burst}, priority={self.priority})"

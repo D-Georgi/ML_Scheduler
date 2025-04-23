@@ -43,8 +43,11 @@ class RoundRobinScheduler:
             if proc.start is None:
                 proc.start = self.env.now
                 proc.response = proc.start - proc.arrival
-            
+
+            start = self.env.now
             exec_time = min(self.time_quantum, proc.remaining)
+            proc.timeline.append((start, exec_time))
+
             print(f"Time {self.env.now}: Process {proc.pid} runs for {exec_time} time units (RR)")
             yield self.env.timeout(exec_time)
             proc.remaining -= exec_time

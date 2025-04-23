@@ -46,7 +46,11 @@ class ShortestRemainingTimeFirstScheduler:
             if proc != self.current_proc:
                 if self.current_proc is not None:
                     self.ready_queue.append(self.current_proc)
+
+                start = self.env.now
                 self.current_proc = proc
+                self.current_proc.timeline.append((start, 0))
+
                 if self.current_proc in self.ready_queue:
                     self.ready_queue.remove(self.current_proc)
 
@@ -57,6 +61,8 @@ class ShortestRemainingTimeFirstScheduler:
 
             # Run for one time unit.
             yield self.env.timeout(1)
+            seg_start, seg_len = self.current_proc.timeline[-1]
+            self.current_proc.timeline[-1] = (seg_start, seg_len + 1)
             self.current_proc.remaining -= 1
 
             # Check if process finished.

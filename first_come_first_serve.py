@@ -41,6 +41,7 @@ class FirstComeFirstServeScheduler:
             if proc.start is None:
                 proc.start = self.env.now
                 proc.response = proc.start - proc.arrival
+                proc.timeline.append((proc.start, proc.burst))
             
             print(f"Time {self.env.now}: Process {proc.pid} starts execution for {proc.burst} time units (FCFS)")
             yield self.env.timeout(proc.burst)

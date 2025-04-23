@@ -111,6 +111,29 @@ def visualize_metrics(results_dict):
     plt.savefig('scheduling_metrics.png')
     plt.show()
 
+def visualize_gantt(results_dict):
+    """
+    results_dict: { 'FCFS': [proc1,proc2...], 'SJF': [...], ... }
+    each proc.timeline is a list of (start, duration) tuples.
+    """
+    n = len(results_dict)
+    fig, axes = plt.subplots(n, 1, figsize=(12, 2*n), sharex=True)
+    if n == 1: axes = [axes]
+
+    for ax, (alg, procs) in zip(axes, results_dict.items()):
+        # map each PID to a y-row
+        pid_to_row = {p.pid: i for i,p in enumerate(sorted(procs, key=lambda x:int(x.pid[1:])))}
+        for p in procs:
+            row = pid_to_row[p.pid]
+            for (start, length) in p.timeline:
+                ax.broken_barh([(start, length)], (row*10, 9))
+        ax.set_yticks([row*10+4 for row in pid_to_row.values()])
+        ax.set_yticklabels(list(pid_to_row.keys()))
+        ax.set_ylabel(alg)
+    axes[-1].set_xlabel("Time")
+    plt.tight_layout()
+    plt.show()
+
 # -------------------------------
 # Sample Process List and Simulations
 # -------------------------------
@@ -163,6 +186,17 @@ metrics = {
 
 # Convert metrics to dictionary format for visualization
 results_dict = {alg: {'turnaround': val[0], 'wait': val[1]} for alg, val in metrics.items()}
+
+timelines = {
+    'FCFS'          : results_fcfs,
+    'SJF'           : results_sjf,
+    'SRTF'          : results_srtf,
+    'Priority'      : results_prio,
+    'Round Robin'   : results_rr,
+    'ML-Based'      : results_ml,
+}
+
+visualize_gantt(timelines)
 
 print("\n" + "="*50)
 print("Detailed Results")

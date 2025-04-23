@@ -74,12 +74,21 @@ def scheduler_ml(env, ready_queue, completed, total, agent):
         proc = sorted_procs[action]
         ready_queue.remove(proc)
 
+        start = env.now
+        if proc.start is None:
+            proc.start = start
+            proc.response = proc.start - proc.arrival
+        proc.timeline.append((start, 0))
+
         if proc.start is None:
             proc.start = env.now
             proc.response = proc.start - proc.arrival
 
         # run one time unit
         yield env.timeout(1)
+
+        seg_start, seg_len = proc.timeline[-1]
+        proc.timeline[-1] = (seg_start, seg_len + 1)
         proc.remaining -= 1
 
         # reward = - waiting queue length per time step
