@@ -132,6 +132,7 @@ def visualize_gantt(results_dict):
         ax.set_ylabel(alg)
     axes[-1].set_xlabel("Time")
     plt.tight_layout()
+    plt.savefig('gantt_chart.png')
     plt.show()
 
 # -------------------------------
