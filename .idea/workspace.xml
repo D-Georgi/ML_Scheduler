@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="63375a5b-bdae-42da-925f-32d2e34e895b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ML.py" beforeDir="false" afterPath="$PROJECT_DIR$/ML.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Simulator.py" beforeDir="false" afterPath="$PROJECT_DIR$/Simulator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/first_come_first_serve.py" beforeDir="false" afterPath="$PROJECT_DIR$/first_come_first_serve.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/priority_scheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/priority_scheduler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/process_generation.py" beforeDir="false" afterPath="$PROJECT_DIR$/process_generation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/round_robin_scheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/round_robin_scheduler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shortest_job_first.py" beforeDir="false" afterPath="$PROJECT_DIR$/shortest_job_first.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shortest_remaining_time_first.py" beforeDir="false" afterPath="$PROJECT_DIR$/shortest_remaining_time_first.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scheduling_metrics.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +53,7 @@
     "Python.Simulator.executor": "Run",
     "Python.test_scheduler.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "#8 on amoharir-improve-state-representation",
     "last_opened_file_path": "F:/CSI 5140/Project 1",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -117,6 +109,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/ML_Scheduler$ML.coverage" NAME="ML Coverage Results" MODIFIED="1745427726470" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ML_Scheduler$test_scheduler.coverage" NAME="test_scheduler Coverage Results" MODIFIED="1745422562583" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ML_Scheduler$Simulator.coverage" NAME="Simulator Coverage Results" MODIFIED="1745427803368" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ML_Scheduler$Simulator.coverage" NAME="Simulator Coverage Results" MODIFIED="1745502933929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
