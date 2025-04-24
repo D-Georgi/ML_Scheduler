@@ -5,11 +5,9 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy all source files
-COPY . /app
+COPY requirements.txt /app/requirements.txt
 
 # Install dependencies
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-# Default command
-CMD ["python", "Simulator.py"]

@@ -4,4 +4,4 @@
 export IMAGE_NAME=ml_scheduler_dolphins
 
 # Run the container
-docker run -it $IMAGE_NAME /bin/bash
+docker run -it -v "$PWD":/app $IMAGE_NAME /bin/bash
