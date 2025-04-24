@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 from matplotlib import colors as mcolors
+from typing import Final
 
 # Imports for ML scheduling
 from ML import MLSchedulerAgent, train_agent, run_simulation_ml, scheduler_ml
@@ -18,6 +19,9 @@ from round_robin_scheduler import RoundRobinScheduler
 from shortest_remaining_time_first import ShortestRemainingTimeFirstScheduler
 from shortest_job_first import ShortestJobFirstScheduler
 from priority_scheduler import PriorityScheduler
+
+# Set number of processes to generate and evaluate scheduling algorithm
+NUMBER_OF_PROCESSES_GENERATED : Final = 100
 
 # Force output to be unbuffered
 sys.stdout.reconfigure(line_buffering=True)
@@ -138,6 +142,7 @@ def visualize_gantt(results_dict):
         ax.set_ylabel(alg)
     axes[-1].set_xlabel("Time")
     plt.tight_layout()
+    plt.savefig('gantt_chart.png')
     plt.show()
 
 # -------------------------------
@@ -148,7 +153,7 @@ print("Starting CPU Scheduler Simulation")
 print("="*50 + "\n")
 
 # Generate a smaller number of processes for clearer demonstration
-sample_processes = generate_processes(10, seed=42)
+sample_processes = generate_processes(NUMBER_OF_PROCESSES_GENERATED, seed=42)
 
 print("Generated Processes:")
 print("-"*30)
@@ -217,10 +222,10 @@ print_results("Round Robin (Time Quantum = 3)", results_rr)
 print_results("ML-Based Scheduler", results_ml)
 
 print("\n" + "="*50)
-print("Average Metrics")
+print(f"Average Metrics (Num of processes evaluated: {NUMBER_OF_PROCESSES_GENERATED})")
 print("="*50 + "\n")
-
-print("Algorithm\t\tAvg Turnaround\tAvg Wait")
+# Ensure output format in terminal is perfectly aligned for columns and their respective data
+print(f"{'Algorithm':<15} {'Avg Turnaround':>15} {'Avg Wait':>15}")
 print("-" * 50)
 for alg, (turnaround, wait) in metrics.items():
     print(f"{alg:<15}\t{turnaround:>8.2f}\t\t{wait:>8.2f}")

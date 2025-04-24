@@ -16,25 +16,37 @@ class MLSchedulerAgent:
         self.Q = {}
 
     def get_state(self, ready_queue, current_time):
-        rems = tuple(sorted(p.remaining for p in ready_queue))
-        qlen = len(rems)
-        avg_rem = sum(rems)/qlen if qlen else 0
-        return (rems, qlen, int(avg_rem))
+        if not ready_queue:
+            return (0, 0, 0, 0)
 
-    def choose_action(self, state):
-        if not state[0]:
+        rems = [p.remaining for p in ready_queue]
+        arrivals = [p.arrival for p in ready_queue]
+        wait_times = [current_time - p.arrival for p in ready_queue]
+
+        qlen = len(ready_queue)
+        avg_rem = sum(rems) / qlen
+        avg_wait = sum(wait_times) / qlen
+        min_rem = min(rems)
+
+        # Return a tuple that uniquely represents this state
+        return (qlen, int(avg_rem), int(avg_wait), min_rem)
+
+
+
+    def choose_action(self, state, num_actions):
+        if num_actions == 0:
             return None
         if random.random() < self.epsilon:
-            return random.randrange(len(state[0]))
-        q_vals = [self.Q.get((state, a), 0.0) for a in range(len(state[0]))]
-        max_q = max(q_vals)
-        best = [i for i,q in enumerate(q_vals) if q==max_q]
-        return random.choice(best)
+            return random.randrange(num_actions)
+        q_vals = [self.Q.get((state, a), 0.0) for a in range(num_actions)]
+        return q_vals.index(max(q_vals))
+
 
     def learn(self, state, action, reward, next_state):
         old = self.Q.get((state, action), 0.0)
-        if next_state[0]:
-            future = max(self.Q.get((next_state, a), 0.0) for a in range(len(next_state[0])))
+        num_actions = next_state[0] # Since state = (queue_length, avg_rem, avg_wait, min_rem)
+        if num_actions > 0:
+            future = max(self.Q.get((next_state, a), 0.0) for a in range(num_actions))
         else:
             future = 0.0
         self.Q[(state, action)] = old + self.alpha*(reward + self.gamma*future - old)
@@ -64,7 +76,8 @@ def scheduler_ml(env, ready_queue, completed, total, agent):
             continue
 
         state = agent.get_state(ready_queue, env.now)
-        action = agent.choose_action(state)
+        #action = agent.choose_action(state)
+        action = agent.choose_action(state, len(ready_queue))
         if action is None:
             yield env.timeout(1)
             continue
